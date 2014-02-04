@@ -27,7 +27,7 @@ _.extend(Plugin.Controller.prototype, {
 	initialize: function () {},
 
 	// loadTemplate has few assumptions:
-	// 1. the variable name of backbone view must match file name in /tpl (App.HeaderView --> HeaderView.html)
+	// 1. the variable name of backbone view must match file name in /tpl (App.HeaderView --> HeaderView.tpl)
 	// 2. the template folder must be named /tpl
 	loadTemplate: function (namespace, callback) {
 		// find out all the views: 

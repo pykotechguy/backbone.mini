@@ -1,6 +1,6 @@
 var App = App || {};
 
-App.Controller = Plugin.Controller.extend({
+App.Controller = Backbone.Mini.Controller.extend({
 	initialize: function () {
 		console.log('$ App Controller Initialized');
 
