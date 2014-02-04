@@ -1,5 +1,5 @@
 var App = App || {};
 
-App.Collections = Backbone.Collection.extend({
+App.Collection = Backbone.Collection.extend({
 
 });

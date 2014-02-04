@@ -2,13 +2,11 @@ var App = App || {};
 
 App.Controller = Backbone.Mini.Controller.extend({
 	initialize: function () {
-		console.log('$ App Controller Initialized');
+		console.log('$ App Controller Initialized $');
 
         // cms = content management system
-        this.CmsModel = new App.CmsModel();
-
-        this.CmsModel.on('change:loaded', _.bind(this.bootstrap, this));
-
+        this.BootstrapModel = new App.BootstrapModel();
+        this.BootstrapModel.on('change:loaded', _.bind(this.bootstrap, this));
 
         // view controller
         this.viewController = new App.ViewController({ controller: this });
@@ -18,8 +16,9 @@ App.Controller = Backbone.Mini.Controller.extend({
         Backbone.history.start();
 	},
 
+    // any logic that's dependent on bootstrap model data should be placed here
     bootstrap: function () {
-        console.log('* CMS Data Loaded *');
+        console.log('* Bootstrap Data Loaded *');
 
         this.viewController.showHeader();
         this.viewController.showMain();

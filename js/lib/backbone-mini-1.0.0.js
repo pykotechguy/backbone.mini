@@ -1,6 +1,6 @@
 // Backbone.Mini
 // -------------
-// v0.0.1
+// v 0.0.1
 
 // Copyright (c)2014 Ti-Wen Lin, Rubicon Project Inc.
 // Backbone.Mini may be freely distributed under the MIT license.
@@ -26,6 +26,8 @@ var Mini = (function (global, Backbone, _) {
 
 
     // Mini Controller
+    // ---------------
+
     Mini.Controller = function (namespace) {
         // namespace is the unique global object of this application(App, App1, App2, etc..)
         // default namespace is App
@@ -41,7 +43,7 @@ var Mini = (function (global, Backbone, _) {
     };
 
     Mini.Controller.prototype.initialize = function () {
-        // put init logic for controller here, if necessary
+        // Controller is initialized. initialize will be overwrite with .extend({ ... }) by user.
     };
 
     Mini.Controller.prototype.loadTemplate = function (namespace, callback) {
@@ -53,8 +55,6 @@ var Mini = (function (global, Backbone, _) {
                 views.push(key);
             }
         }
-
-        console.log('>>>>', namespace);
 
         var deferreds = [];
         _.each(views, function(view) {
@@ -77,6 +77,36 @@ var Mini = (function (global, Backbone, _) {
     };
 
     Mini.Controller.extend = extend;
+
+
+    // Mini ViewController
+    // -------------------
+
+    Mini.ViewController = function (options) {
+        options || (options = {});
+        if (options.views) {
+            this.views = options.views;
+        }
+        if (options.controller) {
+            this.controller = options.controller;
+        }
+        this._bindRoutes();
+        this.initialize.apply(this, arguments);
+    };
+
+    Mini.ViewController.prototype.initialize = function () {
+        // ViewController is initialized.
+    };
+
+    Mini.ViewController.prototype._bindRoutes = function () {
+        if (!this.views) return;
+        _.each(this.views, _.bind(function (value, key, list) {
+            this.on(key, this[value], this);
+            _.bindAll(this, value);
+        }, this));
+    };
+
+    Mini.ViewController.extend = extend;
 
 
 })(this, Backbone, _);

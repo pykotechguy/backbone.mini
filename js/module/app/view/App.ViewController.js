@@ -1,9 +1,11 @@
 /**
  * App.ViewController is the parent object of all the backbone views.
+ *
+ * ViewController loads the Layout and append them to <body>
  */
 var App = App || {};
 
-App.ViewController = Plugin.ViewController.extend({
+App.ViewController = Backbone.Mini.ViewController.extend({
     ui: {
         header: '#HeaderView',
         main: '#MainView',
@@ -11,10 +13,7 @@ App.ViewController = Plugin.ViewController.extend({
         alert: '#AlertView'
     },
 
-
     initialize: function (options) {
-        this.controller = options.controller;
-
         // get references of all layout elements in this application
         this.$header = $('#HeaderView');
         this.$main = $('#MainView');

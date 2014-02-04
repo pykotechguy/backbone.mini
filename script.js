@@ -16803,7 +16803,7 @@ var Marionette = (function(global, Backbone, _){
     return Marionette;
 })(this, Backbone, _);// Backbone.Mini
 // -------------
-// v0.0.1
+// v 0.0.1
 
 // Copyright (c)2014 Ti-Wen Lin, Rubicon Project Inc.
 // Backbone.Mini may be freely distributed under the MIT license.
@@ -16829,6 +16829,8 @@ var Mini = (function (global, Backbone, _) {
 
 
     // Mini Controller
+    // ---------------
+
     Mini.Controller = function (namespace) {
         // namespace is the unique global object of this application(App, App1, App2, etc..)
         // default namespace is App
@@ -16844,7 +16846,7 @@ var Mini = (function (global, Backbone, _) {
     };
 
     Mini.Controller.prototype.initialize = function () {
-        // put init logic for controller here, if necessary
+        // Controller is initialized. initialize will be overwrite with .extend({ ... }) by user.
     };
 
     Mini.Controller.prototype.loadTemplate = function (namespace, callback) {
@@ -16856,8 +16858,6 @@ var Mini = (function (global, Backbone, _) {
                 views.push(key);
             }
         }
-
-        console.log('>>>>', namespace);
 
         var deferreds = [];
         _.each(views, function(view) {
@@ -16880,6 +16880,36 @@ var Mini = (function (global, Backbone, _) {
     };
 
     Mini.Controller.extend = extend;
+
+
+    // Mini ViewController
+    // -------------------
+
+    Mini.ViewController = function (options) {
+        options || (options = {});
+        if (options.views) {
+            this.views = options.views;
+        }
+        if (options.controller) {
+            this.controller = options.controller;
+        }
+        this._bindRoutes();
+        this.initialize.apply(this, arguments);
+    };
+
+    Mini.ViewController.prototype.initialize = function () {
+        // ViewController is initialized.
+    };
+
+    Mini.ViewController.prototype._bindRoutes = function () {
+        if (!this.views) return;
+        _.each(this.views, _.bind(function (value, key, list) {
+            this.on(key, this[value], this);
+            _.bindAll(this, value);
+        }, this));
+    };
+
+    Mini.ViewController.extend = extend;
 
 
 })(this, Backbone, _);
@@ -18889,138 +18919,7 @@ if (typeof jQuery === "undefined") { throw new Error("Bootstrap requires jQuery"
   })
 
 }(jQuery);
-var Plugin = Plugin || {};
-
-// (source: Backbone.js)
-// Helper function to correctly set up the prototype chain, for subclasses.
-// Similar to `goog.inherits`, but uses a hash of prototype properties and
-// class properties to be extended.
-Plugin.extend = function (protoProps, staticProps) {
-    var parent = this;
-    var child;
-
-    // The constructor function for the new subclass is either defined by you
-    // (the "constructor" property in your `extend` definition), or defaulted
-    // by us to simply call the parent's constructor.
-    if (protoProps && _.has(protoProps, 'constructor')) {
-        child = protoProps.constructor;
-    } else {
-        child = function(){ return parent.apply(this, arguments); };
-    }
-
-    // Add static properties to the constructor function, if supplied.
-    _.extend(child, parent, staticProps);
-
-    // Set the prototype chain to inherit from `parent`, without calling
-    // `parent`'s constructor function.
-    var Surrogate = function(){ this.constructor = child; };
-    Surrogate.prototype = parent.prototype;
-    child.prototype = new Surrogate;
-
-    // Add prototype properties (instance properties) to the subclass,
-    // if supplied.
-    if (protoProps) _.extend(child.prototype, protoProps);
-
-    // Set a convenience property in case the parent's prototype is needed
-    // later.
-    child.__super__ = parent.prototype;
-
-    return child;
-};// Controller in Backbone Applications
-// 1. loading templates for this namespace automatically
-// 2. connect views and models, provide as a universal hub
-// 3. elimate this.controller = options.controller boilerplate codes
-// 4. run intialize()
-//
-// One Namespace, One Controller 
-// 
-// Dependency: underscore.js
-var Plugin = Plugin || {};
-
-Plugin.Controller = function (namespace) {
-	// namespace is the unique global object of this application(App, App1, App2, etc..)
-	// default namespace is App
-	if (!namespace) var namespace = App;
-
-	// load templates from /tpl base on View name
-	this.loadTemplate(namespace, _.bind(function () { 
-		// initialize after all the templates are loaded
-		this.initialize.apply(this, arguments);
-	}, this));
-};
-
-// whatever funcitons you put here is available in Plugin.Controller's construct function (the block above)
-// but not available anywhere else
-_.extend(Plugin.Controller.prototype, {
-	initialize: function () {},
-
-	// loadTemplate has few assumptions:
-	// 1. the variable name of backbone view must match file name in /tpl (App.HeaderView --> HeaderView.tpl)
-	// 2. the template folder must be named /tpl
-	loadTemplate: function (namespace, callback) {
-		// find out all the views: 
-		// if the name ends with 'View', then we assume it's a view file
-		var views = [];
-		for (var key in namespace) {
-			if (key.slice(-4) === 'View' || key.slice(-9) === 'Component') {
-				views.push(key);
-			}
-		}
-
-		var deferreds = [];
-		_.each(views, function(view, key) {
-			// Get template from app location
-            var template_url = window.location.pathname + 'tpl/' + view + '.html';
-
-            deferreds.push($.ajax({
-            	url: template_url,
-            	success: function (data) {
-            		namespace[view].prototype.template = _.template(data);
-            	},
-            	error: function () {
-            		console.log('!! Error !! ' + view + '.html not found');
-            	}
-            }));
-		});
-
-		$.when.apply(null, deferreds).done(callback);
-	}
-});
-
-
-// Helper function to correctly set up the prototype chain, for subclasses.
-// Similar to `goog.inherits`, but uses a hash of prototype properties and
-// class properties to be extended.
-Plugin.Controller.extend = Plugin.extend;/**
- * @description a rendering object configured via Backbone.Events to listen for its views to be called, and invoke their assigned callback function
- * @require Underscore.js
- * @params options (object)
- * use:
- * var render = new Plugin.Render.extend({});
- * render.viewRender.trigger('vote');
- */
-Plugin.ViewController = function (options) {
-    options || (options = {});
-    if (options.views) this.views = options.views;
-    if (options.controller) this.controller = options.controller;
-    this._bindRoutes();
-    this.initialize.apply(this, arguments);
-};
-
-// Set up all inheritable **Plugin.Render** properties and methods.
-_.extend(Plugin.ViewController.prototype, Backbone.Events, {
-    initialize: function () {},
-    
-    _bindRoutes: function () {
-        if (!this.views) return;
-        _.each(this.views, _.bind(function (value, key, list) {
-            this.on(key, this[value], this);
-            _.bindAll(this, value);
-        }, this));
-    }
-});
-
-Plugin.ViewController.extend = Plugin.extend;/**
+/**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
  * @version 0.6.11
@@ -19896,6 +19795,29 @@ if (!jQuery.support.cors && window.XDomainRequest) {
             };
         }
     });
+}// Avoid `console` errors in browsers that lack a console.
+// boolean to turn off console log in production
+(function () {
+    // console logging on local and dev
+    var prod = (window.location.host.substr(0, 5) === 'local' || window.location.host.indexOf('dev') !== -1) ? false : true;
+    var methods = ['assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error', 'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log', 'markTimeline', 'profile', 'profileEnd', 'markTimeline', 'table', 'time', 'timeEnd', 'timeStamp', 'trace', 'warn'];
+    var length = methods.length;
+    window.console = (!(window.console && window.console.log)) ? {} : window.console;
+    var noop = (!prod && window.console.log) ? window.console.log : function () {
+    };
+    while (length--) {
+        if (prod || !window.console[methods[length]]) {
+            window.console[methods[length]] = noop;
+        }
+    }
+})();
+
+
+// handy debug short cut function
+function cc(args) {
+    _.each(arguments, function (arg) {
+        console.log('------>', arg);
+    });
 }/**
  * Mixin allows you to extend Underscore with your own utility functions.
  */
@@ -19938,36 +19860,13 @@ _.mixin({
         else
             return decodeURIComponent(results[1].replace(/\+/g, " "));
     }
-});// Avoid `console` errors in browsers that lack a console.
-// boolean to turn off console log in production
-(function () {
-    // console logging on local and dev
-    var prod = (window.location.host.substr(0, 5) === 'local' || window.location.host.indexOf('dev') !== -1) ? false : true;
-    var methods = ['assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error', 'exception', 'group', 'groupCollapsed', 'groupEnd', 'info', 'log', 'markTimeline', 'profile', 'profileEnd', 'markTimeline', 'table', 'time', 'timeEnd', 'timeStamp', 'trace', 'warn'];
-    var length = methods.length;
-    window.console = (!(window.console && window.console.log)) ? {} : window.console;
-    var noop = (!prod && window.console.log) ? window.console.log : function () {
-    };
-    while (length--) {
-        if (prod || !window.console[methods[length]]) {
-            window.console[methods[length]] = noop;
-        }
-    }
-})();
-
-
-// handy debug short cut function
-function cc(args) {
-    _.each(arguments, function (arg) {
-        console.log('------>', arg);
-    });
-}/**
+});/**
  *
  */
 var App = App || {};
 
-App.CmsModel = Backbone.Model.extend({
-	apiUrl: "data/cms.json?sid=100",
+App.BootstrapModel = Backbone.Model.extend({
+	apiUrl: "data/bootstrap.json",
 
 	defaults: {
 		sid: 0,
@@ -19978,7 +19877,7 @@ App.CmsModel = Backbone.Model.extend({
 	},
 
 	initialize: function () {
-		console.log('* CMS Model initialized *');
+		console.log('* Bootstrap Model initialized *');
 
 		this.requestData();
 	},
@@ -19999,7 +19898,7 @@ App.CmsModel = Backbone.Model.extend({
 	},
 
 	requestSuccess: function (data) {
-		console.log('* CMS request success *', data);
+		console.log('* Bootstrap request success *', data);
 		this.set(data, {silent: true});
 
 		this.set('loaded', true)
@@ -20010,7 +19909,7 @@ App.CmsModel = Backbone.Model.extend({
 	}
 });var App = App || {};
 
-App.Collections = Backbone.Collection.extend({
+App.Collection = Backbone.Collection.extend({
 
 });
 var App = App || {};
@@ -20079,10 +19978,12 @@ App.MainView = Backbone.View.extend({
 
 /**
  * App.ViewController is the parent object of all the backbone views.
+ *
+ * ViewController loads the Layout and append them to <body>
  */
 var App = App || {};
 
-App.ViewController = Plugin.ViewController.extend({
+App.ViewController = Backbone.Mini.ViewController.extend({
     ui: {
         header: '#HeaderView',
         main: '#MainView',
@@ -20090,10 +19991,7 @@ App.ViewController = Plugin.ViewController.extend({
         alert: '#AlertView'
     },
 
-
     initialize: function (options) {
-        this.controller = options.controller;
-
         // get references of all layout elements in this application
         this.$header = $('#HeaderView');
         this.$main = $('#MainView');
@@ -20116,13 +20014,11 @@ var App = App || {};
 
 App.Controller = Backbone.Mini.Controller.extend({
 	initialize: function () {
-		console.log('$ App Controller Initialized');
+		console.log('$ App Controller Initialized $');
 
         // cms = content management system
-        this.CmsModel = new App.CmsModel();
-
-        this.CmsModel.on('change:loaded', _.bind(this.bootstrap, this));
-
+        this.BootstrapModel = new App.BootstrapModel();
+        this.BootstrapModel.on('change:loaded', _.bind(this.bootstrap, this));
 
         // view controller
         this.viewController = new App.ViewController({ controller: this });
@@ -20132,18 +20028,19 @@ App.Controller = Backbone.Mini.Controller.extend({
         Backbone.history.start();
 	},
 
+    // any logic that's dependent on bootstrap model data should be placed here
     bootstrap: function () {
-        console.log('* CMS Data Loaded *');
+        console.log('* Bootstrap Data Loaded *');
 
         this.viewController.showHeader();
         this.viewController.showMain();
     }
 });/**
  * conceptually, app.js is the script which is executed at last.
- * @todo: 
  */
 var App = App || {};
 App.moduleName = 'app';
+
 
 // add fast click for mobile browsers
 // where is the most logical place to put these codes ?
@@ -20152,8 +20049,9 @@ window.addEventListener('load', function() {
 }, false);
 
 // Start Application
+// @todo: bootstrap
 (function () {
-	// 
+
     var controller = new App.Controller(App);
 
 })();
