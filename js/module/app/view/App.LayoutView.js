@@ -3,13 +3,12 @@
 var App = App || {};
 
 App.LayoutView = Backbone.View.extend({
-    template: "",
-
     initialize: function () {
 
     },
 
     render: function () {
-
+        this.$el.html(this.template());
+        return this;
     }
 });

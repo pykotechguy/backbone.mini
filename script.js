@@ -19855,10 +19855,13 @@ _.mixin({
         var regexS = "[\\?&]" + name + "=([^&#]*)";
         var regex = new RegExp(regexS);
         var results = regex.exec(window.location.search);
-        if (results == null)
+
+        if (results == null) {
             return "";
-        else
+        }
+        else {
             return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
     }
 });/**
  *
@@ -19947,14 +19950,13 @@ App.HeaderView = Backbone.View.extend({
 var App = App || {};
 
 App.LayoutView = Backbone.View.extend({
-    template: "",
-
     initialize: function () {
 
     },
 
     render: function () {
-
+        this.$el.html(this.template());
+        return this;
     }
 });
 /**
@@ -19992,6 +19994,10 @@ App.ViewController = Backbone.Mini.ViewController.extend({
     },
 
     initialize: function (options) {
+        // prepend layout to <body>
+        $('body').prepend( new App.LayoutView().render().$el );
+
+
         // get references of all layout elements in this application
         this.$header = $('#HeaderView');
         this.$main = $('#MainView');

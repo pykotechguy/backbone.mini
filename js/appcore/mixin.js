@@ -35,9 +35,12 @@ _.mixin({
         var regexS = "[\\?&]" + name + "=([^&#]*)";
         var regex = new RegExp(regexS);
         var results = regex.exec(window.location.search);
-        if (results == null)
+
+        if (results == null) {
             return "";
-        else
+        }
+        else {
             return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
     }
 });

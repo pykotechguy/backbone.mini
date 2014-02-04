@@ -14,6 +14,10 @@ App.ViewController = Backbone.Mini.ViewController.extend({
     },
 
     initialize: function (options) {
+        // prepend layout to <body>
+        $('body').prepend( new App.LayoutView().render().$el );
+
+
         // get references of all layout elements in this application
         this.$header = $('#HeaderView');
         this.$main = $('#MainView');
