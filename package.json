@@ -1,0 +1,19 @@
+{
+	"name": "app_template",
+	"version": "2.0.0",
+	"dependencies": {
+		"javascript": {
+			"bootstrap": "3.0.3",
+			"jquery": "1.10.2",
+			"underscore": "1.5.2",
+            "backbone": "1.1.0",
+            "TweenLite": "1.11.2"
+		},
+		"css": {
+			"bootstrap": "3.0.3"
+		},
+		"engine": {
+			"onejs": "1.0.0"
+		}
+	}
+}

@@ -1,0 +1,27 @@
+/*
+ * 992 px is for regular desktop screens. (not ultra large window)
+ ------------------------------- */
+@media (max-width: 992px) {
+
+}
+
+/*
+ * iPads & most of the tablets in Portrait Mode
+ ------------------------------- */
+@media (max-width: 768px) {
+
+}
+
+/*
+ * Android Phones
+ ------------------------------- */
+@media (max-width: 480px) {
+
+}
+
+/*
+ * iPhones
+ ------------------------------- */
+@media (max-width: 320px) {
+
+}
